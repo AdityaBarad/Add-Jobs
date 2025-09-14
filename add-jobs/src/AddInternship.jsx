@@ -175,7 +175,7 @@ export default function AddInternship() {
         <label htmlFor="internship-salary">Salary</label>
         <input id="internship-salary" className="form-control" name="salary" placeholder="stipend/month" value={form.salary} onChange={handleChange} aria-label="Salary" />
         <label htmlFor="internship-skills">Skills (['comma', 'separated'])</label>
-        <input id="internship-skills" className="form-control" name="skills" placeholder="Skills (['comma', 'separated'])" value={form.skills} onChange={handleChange} aria-label="Skills" />
+        <input id="internship-skills" className="form-control" name="skills" placeholder="Skills (comma, separated)" value={form.skills} onChange={handleChange} aria-label="Skills" />
         <label htmlFor="internship-description">Description</label>
         <textarea id="internship-description" className="form-control" name="description" placeholder="Description" value={form.description} onChange={handleChange} aria-label="Description" />
         <label htmlFor="internship-category">Category</label>

@@ -125,13 +125,14 @@ export default function AddJob() {
     work_mode: 'on-site',
     stipend_salary: '',
     duration: '',
-    application_deadline: '',
-    apply_link: '',
-    description: '',
-    requirements: '',
-    source: '',
-    company_logo: '',
-    status: 'active',
+  application_deadline: '',
+  company_icon: '',
+  apply_link: '',
+  description: '',
+  requirements: '',
+  source: '',
+  company_logo: '',
+  status: 'active',
   });
   const [showCustomLocation, setShowCustomLocation] = useState(false);
   const [message, setMessage] = useState('');
@@ -155,11 +156,11 @@ export default function AddJob() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const { skills_required, custom_location, location, ...rest } = form;
+    const { skills_required, custom_location, location, application_deadline, company_icon, ...rest } = form;
     const skills = skills_required.split(',').map((s) => s.trim()).filter(Boolean);
     const finalLocation = location === 'Other' ? custom_location : location;
     const { error } = await supabase.from('jobs').insert([
-      { ...rest, skills_required: skills, location: finalLocation }
+      { ...rest, skills_required: skills, location: finalLocation, deadline: application_deadline, company_icon }
     ]);
     setMessage(error ? 'Error adding job.' : 'Job added successfully!');
   };
@@ -180,7 +181,7 @@ export default function AddJob() {
           ))}
         </select>
 
-        <input name="skills_required" placeholder="Skills (like this ['skill1','skill2',])" value={form.skills_required} onChange={handleChange} />
+        <input name="skills_required" placeholder="Skills (seperated by comma's like this skill1,skill2)" value={form.skills_required} onChange={handleChange} />
 
         {/* Dropdown for Experience Level */}
         <select name="experience_level" value={form.experience_level} onChange={handleChange} required>
@@ -222,11 +223,11 @@ export default function AddJob() {
         <input name="stipend_salary" placeholder="Salary(without '₹')(if range use higher salary)" value={form.stipend_salary} onChange={handleChange} />
         <input name="duration" placeholder="permanent or temporary" value={form.duration} onChange={handleChange} />
         
-        <label htmlFor="">
-          Application Deadline
-          
-        </label>
-        <input name="application_deadline" type="date" placeholder="Application Deadline" value={form.application_deadline} onChange={handleChange} />
+        <label htmlFor="application_deadline">Application Deadline</label>
+        <input name="application_deadline" id="application_deadline" type="date" placeholder="Application Deadline" value={form.application_deadline} onChange={handleChange} />
+
+        <label htmlFor="company_icon">Company Icon</label>
+        <input name="company_icon" id="company_icon" placeholder="Company Icon URL" value={form.company_icon} onChange={handleChange} />
         <input name="apply_link" placeholder="Apply Link" value={form.apply_link} onChange={handleChange} />
         <textarea name="description" placeholder="Description" value={form.description} onChange={handleChange} />
         <textarea name="requirements" placeholder="Requirements (eg.Strong knowledge of React." value={form.requirements} onChange={handleChange} />
