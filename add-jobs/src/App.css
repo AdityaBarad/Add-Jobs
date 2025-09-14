@@ -154,6 +154,56 @@ button[type="submit"]:hover {
   text-align: center;
 }
 
+/* Enhanced mobile responsiveness */
+@media (max-width: 480px) {
+  .app-container {
+    padding: 8px;
+  }
+  .app-header h1 {
+    font-size: 1.5rem;
+  }
+  .app-header p {
+    font-size: 1rem;
+  }
+  .content-container {
+    padding: 12px;
+  }
+  .nav-button {
+    font-size: 0.95rem;
+    padding: 10px 12px;
+  }
+  form {
+    gap: 12px;
+  }
+  input, textarea, select {
+    font-size: 0.95rem;
+    padding: 10px;
+  }
+}
+
+/* Improve color contrast for accessibility */
+.nav-button.active {
+  background-color: #1a3cff;
+  color: #fff;
+  border-color: #1a3cff;
+}
+
+button[type="submit"] {
+  background-color: #1a3cff;
+}
+button[type="submit"]:hover {
+  background-color: #1740b8;
+}
+
+label, .app-header h1 {
+  color: #222;
+}
+
+/* Touch-friendly tap targets */
+.nav-button, button[type="submit"] {
+  min-height: 44px;
+}
+
 .logo {
   height: 6em;
   padding: 1.5em;
