@@ -116,23 +116,22 @@ export default function AddJob() {
     title: '',
     company_name: '',
     company_website: '',
-    category: 'IT',
+    category: '',
     skills_required: '',
-    experience_level: 'fresher',
-    employment_type: 'full-time',
+    experience_level: '',
+    employment_type: '',
     location: '',
     custom_location: '',
-    work_mode: 'on-site',
+    work_mode: '',
     stipend_salary: '',
     duration: '',
-  application_deadline: '',
-  company_icon: '',
-  apply_link: '',
-  description: '',
-  requirements: '',
-  source: '',
-  company_logo: '',
-  status: 'active',
+    application_deadline: '',
+    apply_link: '',
+    description: '',
+    requirements: '',
+    source: '',
+    company_logo: '',
+    status: 'active',
   });
   const [showCustomLocation, setShowCustomLocation] = useState(false);
   const [message, setMessage] = useState('');
@@ -156,52 +155,105 @@ export default function AddJob() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const { skills_required, custom_location, location, application_deadline, company_icon, ...rest } = form;
-    const skills = skills_required.split(',').map((s) => s.trim()).filter(Boolean);
-    const finalLocation = location === 'Other' ? custom_location : location;
-    const { error } = await supabase.from('jobs').insert([
-      { ...rest, skills_required: skills, location: finalLocation, deadline: application_deadline, company_icon }
-    ]);
-    setMessage(error ? 'Error adding job.' : 'Job added successfully!');
+    try {
+      const { skills_required, custom_location, location, ...rest } = form;
+      const skills = skills_required.split(',').map((s) => s.trim()).filter(Boolean);
+      const finalLocation = location === 'Other' ? custom_location : location;
+      
+      // Prepare data with correct field mappings
+      const jobData = {
+        ...rest,
+        skills_required: skills,
+        location: finalLocation,
+      };
+      
+      // Remove empty string values that might cause issues
+      Object.keys(jobData).forEach(key => {
+        if (jobData[key] === '') {
+          delete jobData[key];
+        }
+      });
+      
+      console.log('Submitting job data:', jobData); // Debug log
+      const { error } = await supabase.from('jobs').insert([jobData]);
+      
+      if (error) {
+        console.error('Supabase error:', error);
+        setMessage(`Error adding job: ${error.message}`);
+      } else {
+        setMessage('Job added successfully!');
+        // Reset form after successful submission
+        setForm({
+          title: '',
+          company_name: '',
+          company_website: '',
+          category: '',
+          skills_required: '',
+          experience_level: '',
+          employment_type: '',
+          location: '',
+          custom_location: '',
+          work_mode: '',
+          stipend_salary: '',
+          duration: '',
+          application_deadline: '',
+          apply_link: '',
+          description: '',
+          requirements: '',
+          source: '',
+          company_logo: '',
+          status: 'active',
+        });
+        setShowCustomLocation(false);
+      }
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      setMessage('An unexpected error occurred. Please try again.');
+    }
   };
 
   return (
-    <div>
-      <h2>Add Job</h2>
-      <form onSubmit={handleSubmit}>
-        <input name="title" placeholder="Title" value={form.title} onChange={handleChange} required />
-        <input name="company_name" placeholder="Company Name" value={form.company_name} onChange={handleChange} required />
-        <input name="company_website" placeholder="Company Website" value={form.company_website} onChange={handleChange} />
+    <div className="form-container">
+      <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>Add Job</h2>
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }} aria-label="Job Form">
+        <label htmlFor="job-title">Title</label>
+        <input id="job-title" className="form-control" name="title" placeholder="Job Title" value={form.title} onChange={handleChange} required aria-required="true" aria-label="Job Title" />
+        
+        <label htmlFor="company-name">Company Name</label>
+        <input id="company-name" className="form-control" name="company_name" placeholder="Company Name" value={form.company_name} onChange={handleChange} required aria-required="true" aria-label="Company Name" />
+        
+        <label htmlFor="company-website">Company Website</label>
+        <input id="company-website" className="form-control" name="company_website" placeholder="Company Website" value={form.company_website} onChange={handleChange} aria-label="Company Website" />
 
-        {/* Dropdown for Category */}
-        <select name="category" value={form.category} onChange={handleChange} required>
+        <label htmlFor="job-category">Category</label>
+        <select id="job-category" className="form-control" name="category" value={form.category} onChange={handleChange} required aria-label="Category">
           <option value="" disabled>Select Category</option>
           {categoryOptions.map(option => (
             <option key={option} value={option}>{option}</option>
           ))}
         </select>
 
-        <input name="skills_required" placeholder="Skills (seperated by comma's like this skill1,skill2)" value={form.skills_required} onChange={handleChange} />
+        <label htmlFor="skills-required">Skills Required</label>
+        <input id="skills-required" className="form-control" name="skills_required" placeholder="Skills (separated by commas, e.g., skill1, skill2)" value={form.skills_required} onChange={handleChange} aria-label="Skills Required" />
 
-        {/* Dropdown for Experience Level */}
-        <select name="experience_level" value={form.experience_level} onChange={handleChange} required>
+        <label htmlFor="experience-level">Experience Level</label>
+        <select id="experience-level" className="form-control" name="experience_level" value={form.experience_level} onChange={handleChange} required aria-label="Experience Level">
           <option value="" disabled>Select Experience Level</option>
           {experienceLevelOptions.map(option => (
             <option key={option} value={option}>{option}</option>
           ))}
         </select>
 
-        {/* Dropdown for Employment Type */}
-        <select name="employment_type" value={form.employment_type} onChange={handleChange} required>
+        <label htmlFor="employment-type">Employment Type</label>
+        <select id="employment-type" className="form-control" name="employment_type" value={form.employment_type} onChange={handleChange} required aria-label="Employment Type">
           <option value="" disabled>Select Employment Type</option>
           {employmentTypeOptions.map(option => (
             <option key={option} value={option}>{option}</option>
           ))}
         </select>
 
-        {/* Location Dropdown with Other option */}
-        <label htmlFor="location">Location</label>
-        <select name="location" id="location" value={form.location} onChange={handleChange} required aria-label="Location">
+        <label htmlFor="job-location">Location</label>
+        <select className="form-control" name="location" id="job-location" value={form.location} onChange={handleChange} required aria-label="Location">
           <option value="" disabled>Select City</option>
           {majorIndianCities.map(city => (
             <option key={city.value} value={city.value}>{city.label}</option>
@@ -209,42 +261,52 @@ export default function AddJob() {
           <option value="Other">Other</option>
         </select>
         {showCustomLocation && (
-          <input name="custom_location" placeholder="Enter custom location" value={form.custom_location} onChange={handleChange} required aria-label="Custom Location" />
+          <input className="form-control" name="custom_location" placeholder="Enter custom location" value={form.custom_location} onChange={handleChange} required aria-label="Custom Location" />
         )}
 
-        {/* Dropdown for Work Mode */}
-        <select name="work_mode" value={form.work_mode} onChange={handleChange} required>
+        <label htmlFor="work-mode">Work Mode</label>
+        <select id="work-mode" className="form-control" name="work_mode" value={form.work_mode} onChange={handleChange} required aria-label="Work Mode">
           <option value="" disabled>Select Work Mode</option>
           {workModeOptions.map(option => (
             <option key={option} value={option}>{option}</option>
           ))}
         </select>
 
-        <input name="stipend_salary" placeholder="Salary(without '₹')(if range use higher salary)" value={form.stipend_salary} onChange={handleChange} />
-        <input name="duration" placeholder="permanent or temporary" value={form.duration} onChange={handleChange} />
+        <label htmlFor="stipend-salary">Salary</label>
+        <input id="stipend-salary" className="form-control" name="stipend_salary" placeholder="Salary (without ₹, if range use higher salary)" value={form.stipend_salary} onChange={handleChange} aria-label="Salary" />
         
-        <label htmlFor="application_deadline">Application Deadline</label>
-        <input name="application_deadline" id="application_deadline" type="date" placeholder="Application Deadline" value={form.application_deadline} onChange={handleChange} />
+        <label htmlFor="job-duration">Duration</label>
+        <input id="job-duration" className="form-control" name="duration" placeholder="permanent or temporary" value={form.duration} onChange={handleChange} aria-label="Duration" />
+        
+        <label htmlFor="application-deadline">Application Deadline</label>
+        <input id="application-deadline" className="form-control" name="application_deadline" type="date" value={form.application_deadline} onChange={handleChange} aria-label="Application Deadline" />
+        
+        <label htmlFor="apply-link">Apply Link</label>
+        <input id="apply-link" className="form-control" name="apply_link" placeholder="Apply Link" value={form.apply_link} onChange={handleChange} aria-label="Apply Link" />
+        
+        <label htmlFor="job-description">Description</label>
+        <textarea id="job-description" className="form-control" name="description" placeholder="Job Description" value={form.description} onChange={handleChange} aria-label="Description" />
+        
+        <label htmlFor="job-requirements">Requirements</label>
+        <textarea id="job-requirements" className="form-control" name="requirements" placeholder="Requirements (e.g., Strong knowledge of React)" value={form.requirements} onChange={handleChange} aria-label="Requirements" />
+        
+        <label htmlFor="job-source">Source</label>
+        <input id="job-source" className="form-control" name="source" placeholder="Source (e.g., LinkedIn)" value={form.source} onChange={handleChange} aria-label="Source" />
+        
+        <label htmlFor="company-logo">Company Logo URL</label>
+        <input id="company-logo" className="form-control" name="company_logo" placeholder="Company Logo URL" value={form.company_logo} onChange={handleChange} aria-label="Company Logo" />
 
-        <label htmlFor="company_icon">Company Icon</label>
-        <input name="company_icon" id="company_icon" placeholder="Company Icon URL" value={form.company_icon} onChange={handleChange} />
-        <input name="apply_link" placeholder="Apply Link" value={form.apply_link} onChange={handleChange} />
-        <textarea name="description" placeholder="Description" value={form.description} onChange={handleChange} />
-        <textarea name="requirements" placeholder="Requirements (eg.Strong knowledge of React." value={form.requirements} onChange={handleChange} />
-        <input name="source" placeholder="Source (eg linked In)" value={form.source} onChange={handleChange} />
-        <input name="company_logo" placeholder="Company Logo URL" value={form.company_logo} onChange={handleChange} />
-
-        {/* Dropdown for Status */}
-        <select name="status" value={form.status} onChange={handleChange} required>
+        <label htmlFor="job-status">Status</label>
+        <select id="job-status" className="form-control" name="status" value={form.status} onChange={handleChange} required aria-label="Status">
           <option value="" disabled>Select Status</option>
           {statusOptions.map(option => (
             <option key={option} value={option}>{option}</option>
           ))}
         </select>
 
-        <button type="submit">Add Job</button>
+        <button className="submit-button" type="submit" aria-label="Add Job">Add Job</button>
       </form>
-      {message && <p>{message}</p>}
+      {message && <p style={{ textAlign: 'center', marginTop: '15px' }} aria-live="polite">{message}</p>}
     </div>
   );
 }
