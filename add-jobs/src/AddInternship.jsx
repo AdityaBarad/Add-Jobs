@@ -144,13 +144,42 @@ export default function AddInternship() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const { skills, custom_location, location, ...rest } = form;
-    const skillsArr = skills.split(',').map((s) => s.trim()).filter(Boolean);
-    const finalLocation = location === 'Other' ? custom_location : location;
-    const { error } = await supabase.from('internships').insert([
-      { ...rest, skills: skillsArr, location: finalLocation }
-    ]);
-    setMessage(error ? 'Error adding internship.' : 'Internship added successfully!');
+    try {
+      const { skills, custom_location, location, ...rest } = form;
+      const skillsArr = skills.split(',').map((s) => s.trim()).filter(Boolean);
+      const finalLocation = location === 'Other' ? custom_location : location;
+      const { error } = await supabase.from('internships').insert([
+        { ...rest, skills: skillsArr, location: finalLocation }
+      ]);
+      
+      if (error) {
+        console.error('Supabase error:', error);
+        setMessage(`Error adding internship: ${error.message}`);
+      } else {
+        setMessage('Internship added successfully!');
+        // Reset form after successful submission
+        setForm({
+          title: '',
+          company: '',
+          location: '',
+          custom_location: '',
+          salary: '',
+          skills: '',
+          description: '',
+          category: '',
+          is_urgent: false,
+          batch: '',
+          duration: '',
+          status: 'Open',
+          apply_link: '',
+          work_mode: '',
+        });
+        setShowCustomLocation(false);
+      }
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      setMessage('An unexpected error occurred. Please try again.');
+    }
   };
 
   return (

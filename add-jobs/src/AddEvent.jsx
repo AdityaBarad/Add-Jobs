@@ -144,13 +144,42 @@ export default function AddEvent() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const { custom_location, location, registration_type, prize_pool, ...rest } = form;
-    const finalLocation = location === 'Other' ? custom_location : location;
-    const prizePoolValue = prize_pool === 'true';
-    const { error } = await supabase.from('events').insert([
-      { ...rest, location: finalLocation, registration_type, prize_pool: prizePoolValue }
-    ]);
-    setMessage(error ? 'Error adding event.' : 'Event added successfully!');
+    try {
+      const { custom_location, location, registration_type, prize_pool, ...rest } = form;
+      const finalLocation = location === 'Other' ? custom_location : location;
+      const prizePoolValue = prize_pool === 'true';
+      const { error } = await supabase.from('events').insert([
+        { ...rest, location: finalLocation, registration_type, prize_pool: prizePoolValue }
+      ]);
+      
+      if (error) {
+        console.error('Supabase error:', error);
+        setMessage(`Error adding event: ${error.message}`);
+      } else {
+        setMessage('Event added successfully!');
+        // Reset form after successful submission
+        setForm({
+          title: '',
+          description: '',
+          location: '',
+          custom_location: '',
+          date: '',
+          start_time: '',
+          end_time: '',
+          organizer_name: '',
+          contact_email: '',
+          contact_phone: '',
+          image_url: '',
+          category: '',
+          registration_type: '',
+          prize_pool: '',
+        });
+        setShowCustomLocation(false);
+      }
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      setMessage('An unexpected error occurred. Please try again.');
+    }
   };
        
 
@@ -215,20 +244,6 @@ export default function AddEvent() {
           <option value="" disabled>Select Prize Pool Option</option>
           <option value="true">Prize Pool</option>
           <option value="false">No Prize Pool</option>
-        </select>
-
-        <label htmlFor="event-registration-type">Registration Type</label>
-        <select id="event-registration-type" className="form-control" name="registration_type" value={form.registration_type} onChange={handleChange} required aria-label="Registration Type">
-          <option value="" disabled>Select Registration Type</option>
-          <option value="Paid">Paid</option>
-          <option value="Free">Free</option>
-          <option value="Early Bird">Early Bird</option>
-        </select> 
-        <label htmlFor="event-prize-pool">Prize Pool</label>
-        <select id="event-prize-pool" className="form-control" name="prize_pool" value={form.prize_pool} onChange={handleChange} required aria-label="Prize Pool">
-          <option value="" disabled>Select Prize Pool Option</option>
-          <option value={true}>Prize Pool</option>
-          <option value={false}>No Prize Pool</option>
         </select>
         <button className="submit-button" type="submit" aria-label="Add Event">Add Event</button>
       </form>
